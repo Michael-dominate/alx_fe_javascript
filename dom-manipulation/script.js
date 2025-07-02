@@ -1,22 +1,26 @@
 
 const quotes = [
-    { text: "Be yourself; everyone else is already taken.", category: "wisdom" },
-    { text: "You only live once, but if you do it right, once is enough.", category: "life" },
-    { text: "The purpose of our lives is to be happy.", category: "inspiration" },
-    { text: "Life is what happens when you're busy making other plans.", category: "life" },
-    { text: "Live life to the fullest.", category: "motivation" }
+    { text: "The only way to do great work is to love what you do.", category: "Inspiration" },
+    { text: "Life is what happens when you're busy making other plans.", category: "Life" },
+    { text: "In the middle of difficulty lies opportunity.", category: "Motivation" },
+    { text: "Be the change that you wish to see in the world.", category: "Wisdom" },
+    { text: "It does not matter how slowly you go as long as you do not stop.", category: "Perseverance" }
 ];
 
 
-const quoteDisplay = document.getElementById('quoteDisplay');
-const newQuoteBtn = document.getElementById('newQuote');
-const categoriesDiv = document.getElementById('categories');
+const quoteTextElement = document.getElementById('quote-text');
+const quoteCategoryElement = document.getElementById('quote-category');
+const newQuoteBtn = document.getElementById('new-quote-btn');
+const quoteTextInput = document.getElementById('quote-text-input');
+const quoteCategoryInput = document.getElementById('quote-category-input');
+const addQuoteBtn = document.getElementById('add-quote-btn');
 
 
 function displayRandomQuote() {
     
-    if (!quotes || quotes.length === 0) {
-        quoteDisplay.textContent = "No quotes available";
+    if (quotes.length === 0) {
+        quoteTextElement.textContent = "No quotes available";
+        quoteCategoryElement.textContent = "";
         return;
     }
 
@@ -25,43 +29,45 @@ function displayRandomQuote() {
     const randomQuote = quotes[randomIndex];
     
     
-    quoteDisplay.innerHTML = `"${randomQuote.text}"<br><em>${randomQuote.category}</em>`;
+    quoteTextElement.textContent = `"${randomQuote.text}"`;
+    quoteCategoryElement.textContent = `— ${randomQuote.category}`;
 }
 
 
 function addQuote() {
+    const text = quoteTextInput.value.trim();
+    const category = quoteCategoryInput.value.trim();
     
-    const textInput = document.getElementById('newQuoteText');
-    const categoryInput = document.getElementById('newQuoteCategory');
     
-    
-    if (!textInput.value.trim() || !categoryInput.value.trim()) {
+    if (!text || !category) {
         alert("Please enter both quote text and category");
         return;
     }
-
+    
     
     const newQuote = {
-        text: textInput.value.trim(),
-        category: categoryInput.value.trim()
+        text: text,
+        category: category
     };
-
+    
     
     quotes.push(newQuote);
     
     
-    textInput.value = '';
-    categoryInput.value = '';
+    quoteTextInput.value = "";
+    quoteCategoryInput.value = "";
     
-    
+  
     alert("Quote added successfully!");
     
     
-    quoteDisplay.innerHTML = `"${newQuote.text}"<br><em>${newQuote.category}</em>`;
+    quoteTextElement.textContent = `"${newQuote.text}"`;
+    quoteCategoryElement.textContent = `— ${newQuote.category}`;
 }
 
 
 newQuoteBtn.addEventListener('click', displayRandomQuote);
+addQuoteBtn.addEventListener('click', addQuote);
 
 
 displayRandomQuote();
