@@ -1,28 +1,112 @@
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
 body {
-    font-family: Arial, sans-serif;
-    max-width: 600px;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    max-width: 800px;
     margin: 0 auto;
-    padding: 20px;
+    padding: 2rem;
+    background-color: #f5f7fa;
+    color: #333;
+    line-height: 1.6;
+}
+
+
+h1 {
+    color: #2c3e50;
+    text-align: center;
+    margin-bottom: 2rem;
+    font-size: 2.2rem;
+}
+
+
+#quoteDisplay {
+    background-color: white;
+    padding: 2rem;
+    margin: 2rem 0;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    text-align: center;
+    font-size: 1.2rem;
+    min-height: 120px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+#quoteDisplay em {
+    display: block;
+    margin-top: 1rem;
+    color: #7f8c8d;
+    font-style: normal;
+    font-size: 1rem;
+}
+
+
+button {
+    background-color: #3498db;
+    color: white;
+    border: none;
+    padding: 0.8rem 1.5rem;
+    font-size: 1rem;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    display: block;
+    margin: 1rem auto;
+}
+
+button:hover {
+    background-color: #2980b9;
+}
+
+#newQuote {
+    margin-bottom: 2rem;
+}
+
+
+#categories {
+    text-align: center;
+    margin-bottom: 1.5rem;
+}
+
+h3 {
+    color: #2c3e50;
+    margin: 1.5rem 0 1rem;
     text-align: center;
 }
 
-#quoteDisplay {
-    margin: 30px 0;
-    padding: 20px;
-    border: 1px solid #ddd;
-    min-height: 100px;
-}
-
-button {
-    padding: 10px 15px;
-    background-color: #4CAF50;
-    color: white;
-    border: none;
-    margin: 10px;
-}
-
 input {
-    padding: 8px;
-    margin: 5px;
-    width: 80%;
+    width: 100%;
+    padding: 0.8rem;
+    margin: 0.5rem 0;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 1rem;
+}
+
+input:focus {
+    outline: none;
+    border-color: #3498db;
+    box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
+}
+
+
+@media (max-width: 600px) {
+    body {
+        padding: 1rem;
+    }
+    
+    h1 {
+        font-size: 1.8rem;
+    }
+    
+    #quoteDisplay {
+        padding: 1.5rem;
+        font-size: 1.1rem;
+    }
 }
