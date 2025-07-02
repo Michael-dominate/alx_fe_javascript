@@ -1,15 +1,43 @@
 
-const quotes = [
-    { text: "The only way to do great work is to love what you do.", category: "Inspiration" },
-    { text: "Life is what happens when you're busy making other plans.", category: "Life" },
-    { text: "In the middle of difficulty lies opportunity.", category: "Motivation" },
-    { text: "Be the change that you wish to see in the world.", category: "Wisdom" },
-    { text: "It does not matter how slowly you go as long as you do not stop.", category: "Perseverance" }
-];
+let quotes = [];
 
 
 const quoteDisplay = document.getElementById('quoteDisplay');
 const newQuoteBtn = document.getElementById('newQuote');
+const exportBtn = document.getElementById('exportBtn');
+const importFile = document.getElementById('importFile');
+
+
+function init() {
+    loadQuotes(); 
+    showRandomQuote();
+    createAddQuoteForm();
+    newQuoteBtn.addEventListener('click', showRandomQuote);
+    exportBtn.addEventListener('click', exportToJsonFile);
+    importFile.addEventListener('change', importFromJsonFile);
+}
+
+
+function loadQuotes() {
+    const storedQuotes = localStorage.getItem('quotes');
+    if (storedQuotes) {
+        quotes = JSON.parse(storedQuotes);
+    } else {
+      
+        quotes = [
+            { text: "The only way to do great work is to love what you do.", category: "Inspiration" },
+            { text: "Life is what happens when you're busy making other plans.", category: "Life" },
+            { text: "In the middle of difficulty lies opportunity.", category: "Motivation" }
+        ];
+        saveQuotes();
+    }
+}
+
+
+function saveQuotes() {
+    localStorage.setItem('quotes', JSON.stringify(quotes));
+    sessionStorage.setItem('lastUpdate', new Date().toISOString());
+}
 
 
 function showRandomQuote() {
@@ -25,6 +53,9 @@ function showRandomQuote() {
         <p class="quote-text">"${randomQuote.text}"</p>
         <p class="quote-category">— ${randomQuote.category}</p>
     `;
+    
+    
+    sessionStorage.setItem('lastViewedQuote', JSON.stringify(randomQuote));
 }
 
 
@@ -34,13 +65,12 @@ function createAddQuoteForm() {
     
     formContainer.innerHTML = `
         <h3>Add Your Own Quote</h3>
-        <input id="newQuoteText" type="text" placeholder="Enter quote text">
-        <input id="newQuoteCategory" type="text" placeholder="Enter category">
+        <input type="text" id="newQuoteText" placeholder="Enter quote text">
+        <input type="text" id="newQuoteCategory" placeholder="Enter category">
         <button id="addQuoteBtn">Add Quote</button>
     `;
     
     document.body.appendChild(formContainer);
-    
     
     document.getElementById('addQuoteBtn').addEventListener('click', function() {
         const text = document.getElementById('newQuoteText').value.trim();
@@ -52,6 +82,7 @@ function createAddQuoteForm() {
         }
         
         quotes.push({ text, category });
+        saveQuotes(); 
         document.getElementById('newQuoteText').value = "";
         document.getElementById('newQuoteCategory').value = "";
         alert("Quote added successfully!");
@@ -60,12 +91,42 @@ function createAddQuoteForm() {
 }
 
 
-function init() {
-    showRandomQuote();
-    createAddQuoteForm();
+function exportToJsonFile() {
+    const dataStr = JSON.stringify(quotes, null, 2);
+    const dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(dataStr);
     
+    const exportFileDefaultName = 'quotes.json';
     
-    newQuoteBtn.addEventListener('click', showRandomQuote);
+    const linkElement = document.createElement('a');
+    linkElement.setAttribute('href', dataUri);
+    linkElement.setAttribute('download', exportFileDefaultName);
+    linkElement.click();
 }
+
+
+function importFromJsonFile(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+    
+    const fileReader = new FileReader();
+    fileReader.onload = function(e) {
+        try {
+            const importedQuotes = JSON.parse(e.target.result);
+            if (Array.isArray(importedQuotes)) {
+                quotes.push(...importedQuotes);
+                saveQuotes();
+                alert(`${importedQuotes.length} quotes imported successfully!`);
+                showRandomQuote();
+            } else {
+                alert("Invalid format: Expected an array of quotes");
+            }
+        } catch (error) {
+            alert("Error parsing JSON file: " + error.message);
+        }
+        event.target.value = ''; 
+    };
+    fileReader.readAsText(file);
+}
+
 
 init();
