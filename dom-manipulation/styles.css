@@ -3,47 +3,65 @@
     margin: 0;
     padding: 0;
     box-sizing: border-box;
+    font-family: 'Arial', sans-serif;
 }
 
 body {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    max-width: 800px;
-    margin: 0 auto;
-    padding: 2rem;
     background-color: #f5f7fa;
     color: #333;
     line-height: 1.6;
 }
 
+.container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 2rem;
+}
 
-h1 {
+h1, h2 {
     color: #2c3e50;
     text-align: center;
-    margin-bottom: 2rem;
-    font-size: 2.2rem;
+    margin-bottom: 1.5rem;
+}
+
+h1 {
+    font-size: 2.5rem;
+}
+
+h2 {
+    font-size: 1.8rem;
+    margin-top: 2rem;
 }
 
 
-#quoteDisplay {
+#quote-container {
     background-color: white;
-    padding: 2rem;
-    margin: 2rem 0;
     border-radius: 8px;
+    padding: 2rem;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    text-align: center;
-    font-size: 1.2rem;
-    min-height: 120px;
+    margin-bottom: 2rem;
+}
+
+#quote-display {
+    min-height: 150px;
     display: flex;
     flex-direction: column;
     justify-content: center;
+    margin-bottom: 1.5rem;
 }
 
-#quoteDisplay em {
-    display: block;
-    margin-top: 1rem;
-    color: #7f8c8d;
-    font-style: normal;
+#quote-text {
+    font-size: 1.4rem;
+    font-style: italic;
+    margin-bottom: 0.5rem;
+    color: #2c3e50;
+}
+
+#quote-category {
     font-size: 1rem;
+    color: #7f8c8d;
+    text-align: right;
+    font-weight: bold;
 }
 
 
@@ -55,35 +73,34 @@ button {
     font-size: 1rem;
     border-radius: 4px;
     cursor: pointer;
-    transition: background-color 0.3s ease;
+    transition: all 0.3s ease;
     display: block;
-    margin: 1rem auto;
+    width: 100%;
+    max-width: 200px;
+    margin: 0 auto;
 }
 
 button:hover {
     background-color: #2980b9;
+    transform: translateY(-2px);
 }
 
-#newQuote {
-    margin-bottom: 2rem;
+#new-quote-btn {
+    margin-top: 1.5rem;
 }
 
 
-#categories {
-    text-align: center;
-    margin-bottom: 1.5rem;
-}
-
-h3 {
-    color: #2c3e50;
-    margin: 1.5rem 0 1rem;
-    text-align: center;
+.add-quote-form {
+    background-color: white;
+    border-radius: 8px;
+    padding: 2rem;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
 input {
     width: 100%;
     padding: 0.8rem;
-    margin: 0.5rem 0;
+    margin: 0.5rem 0 1rem;
     border: 1px solid #ddd;
     border-radius: 4px;
     font-size: 1rem;
@@ -97,16 +114,15 @@ input:focus {
 
 
 @media (max-width: 600px) {
-    body {
+    .container {
         padding: 1rem;
     }
     
     h1 {
-        font-size: 1.8rem;
+        font-size: 2rem;
     }
     
-    #quoteDisplay {
-        padding: 1.5rem;
-        font-size: 1.1rem;
+    #quote-text {
+        font-size: 1.2rem;
     }
 }
