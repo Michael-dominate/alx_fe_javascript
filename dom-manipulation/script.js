@@ -32,107 +32,47 @@ async function init() {
     exportBtn.addEventListener('click', exportToJsonFile);
     importFile.addEventListener('change', importFromJsonFile);
     categoryFilter.addEventListener('change', filterQuotes);
-    manualSyncBtn.addEventListener('click', syncQuotes); // Changed to use syncQuotes
+    manualSyncBtn.addEventListener('click', syncQuotes);
     
     // Start periodic sync
-    setInterval(syncQuotes, SYNC_INTERVAL); // Changed to use syncQuotes
+    setInterval(syncQuotes, SYNC_INTERVAL);
 }
 
-// Fetch quotes from mock server
-async function fetchQuotesFromServer() {
-    try {
-        const response = await fetch(SERVER_URL);
-        if (!response.ok) {
-            throw new Error(`Server error: ${response.status}`);
-        }
-        const serverData = await response.json();
-        
-        // Transform mock data to our quote format
-        return serverData.slice(0, 5).map(post => ({
-            text: post.title,
-            category: `Server-${post.userId}`,
-            source: 'server',
-            id: post.id
-        }));
-    } catch (error) {
-        console.error('Failed to fetch quotes from server:', error);
-        updateSyncStatus('Failed to fetch from server', 'error');
-        throw error;
-    }
+// Save data to local storage
+function saveData() {
+    localStorage.setItem('quotes', JSON.stringify(quotes));
+    localStorage.setItem('selectedCategory', selectedCategory);
+    localStorage.setItem('lastSyncTime', new Date().toISOString());
+    pendingChanges = false;
+    updateSyncStatus('Changes saved locally', 'success');
 }
 
-// Send quotes to server
-async function postQuotesToServer(quotesToSend) {
-    try {
-        const response = await fetch(SERVER_URL, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                quotes: quotesToSend,
-                timestamp: new Date().toISOString()
-            })
-        });
-
-        if (!response.ok) {
-            throw new Error(`Server error: ${response.status}`);
-        }
-
-        const responseData = await response.json();
-        console.log('Quotes successfully posted to server:', responseData);
-        return responseData;
-    } catch (error) {
-        console.error('Failed to post quotes to server:', error);
-        updateSyncStatus('Failed to post to server', 'error');
-        throw error;
-    }
-}
-
-// Main synchronization function
-async function syncQuotes() {
-    try {
-        updateSyncStatus('Starting synchronization...', 'info');
-        
-        // Step 1: Get server quotes
-        updateSyncStatus('Fetching server quotes...', 'info');
-        const serverQuotes = await fetchQuotesFromServer();
-        
-        // Step 2: Send local changes to server
-        if (pendingChanges) {
-            updateSyncStatus('Sending local changes...', 'info');
-            const localChanges = quotes.filter(q => !q.source || q.source === 'local');
-            if (localChanges.length > 0) {
-                await postQuotesToServer(localChanges);
-            }
-        }
-        
-        // Step 3: Merge quotes
-        updateSyncStatus('Merging quotes...', 'info');
-        const mergedQuotes = mergeQuotes(quotes, serverQuotes);
-        
-        // Step 4: Update if changes detected
-        if (JSON.stringify(quotes) !== JSON.stringify(mergedQuotes)) {
-            quotes = mergedQuotes;
-            saveData();
-            updateSyncStatus('Synchronization complete', 'success');
-            populateCategories();
-            showRandomQuote();
-            pendingChanges = false;
-        } else {
-            updateSyncStatus('Already up to date', 'success');
-        }
-        
-        lastSyncTime = new Date();
-    } catch (error) {
-        updateSyncStatus('Synchronization failed', 'error');
-        console.error('Sync error:', error);
-        throw error;
+// Load data from local storage
+async function loadData() {
+    const storedQuotes = localStorage.getItem('quotes');
+    const storedCategory = localStorage.getItem('selectedCategory');
+    const storedSyncTime = localStorage.getItem('lastSyncTime');
+    
+    if (storedQuotes) {
+        quotes = JSON.parse(storedQuotes);
+        selectedCategory = storedCategory || 'all';
+        lastSyncTime = storedSyncTime ? new Date(storedSyncTime) : null;
+        pendingChanges = false;
+        updateSyncStatus('Loaded from local storage', 'success');
+    } else {
+        // Default quotes if none in storage
+        quotes = [
+            { text: "The only way to do great work is to love what you do.", category: "Inspiration" },
+            { text: "Life is what happens when you're busy making other plans.", category: "Life" },
+            { text: "In the middle of difficulty lies opportunity.", category: "Motivation" }
+        ];
+        saveData(); // This will call localStorage.setItem
     }
 }
 
 // [Rest of the functions remain the same:
-// loadData, saveData, mergeQuotes, updateSyncStatus, populateCategories, 
+// fetchQuotesFromServer, postQuotesToServer, syncQuotes, 
+// mergeQuotes, updateSyncStatus, populateCategories, 
 // applySavedFilter, filterQuotes, displayQuote, showRandomQuote,
 // createAddQuoteForm, exportToJsonFile, importFromJsonFile]
 
