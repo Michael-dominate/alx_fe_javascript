@@ -8,19 +8,15 @@ const quotes = [
 ];
 
 
-const quoteTextElement = document.getElementById('quote-text');
-const quoteCategoryElement = document.getElementById('quote-category');
-const newQuoteBtn = document.getElementById('new-quote-btn');
-const quoteTextInput = document.getElementById('quote-text-input');
-const quoteCategoryInput = document.getElementById('quote-category-input');
-const addQuoteBtn = document.getElementById('add-quote-btn');
+const quoteDisplay = document.getElementById('quoteDisplay');
+const newQuoteBtn = document.getElementById('newQuote');
+const quoteTextInput = document.getElementById('newQuoteText');
+const quoteCategoryInput = document.getElementById('newQuoteCategory');
 
-
-function displayRandomQuote() {
+function showRandomQuote() {
     
     if (quotes.length === 0) {
-        quoteTextElement.textContent = "No quotes available";
-        quoteCategoryElement.textContent = "";
+        quoteDisplay.innerHTML = "<p>No quotes available</p>";
         return;
     }
 
@@ -29,8 +25,10 @@ function displayRandomQuote() {
     const randomQuote = quotes[randomIndex];
     
     
-    quoteTextElement.textContent = `"${randomQuote.text}"`;
-    quoteCategoryElement.textContent = `— ${randomQuote.category}`;
+    quoteDisplay.innerHTML = `
+        <p class="quote-text">"${randomQuote.text}"</p>
+        <p class="quote-category">— ${randomQuote.category}</p>
+    `;
 }
 
 
@@ -38,7 +36,7 @@ function addQuote() {
     const text = quoteTextInput.value.trim();
     const category = quoteCategoryInput.value.trim();
     
-    
+  
     if (!text || !category) {
         alert("Please enter both quote text and category");
         return;
@@ -53,21 +51,22 @@ function addQuote() {
     
     quotes.push(newQuote);
     
-    
+  
     quoteTextInput.value = "";
     quoteCategoryInput.value = "";
     
-  
+    
     alert("Quote added successfully!");
     
     
-    quoteTextElement.textContent = `"${newQuote.text}"`;
-    quoteCategoryElement.textContent = `— ${newQuote.category}`;
+    quoteDisplay.innerHTML = `
+        <p class="quote-text">"${newQuote.text}"</p>
+        <p class="quote-category">— ${newQuote.category}</p>
+    `;
 }
 
 
-newQuoteBtn.addEventListener('click', displayRandomQuote);
-addQuoteBtn.addEventListener('click', addQuote);
+newQuoteBtn.addEventListener('click', showRandomQuote);
 
 
-displayRandomQuote();
+showRandomQuote();
