@@ -147,7 +147,7 @@ async function syncQuotes() {
         if (JSON.stringify(quotes) !== JSON.stringify(mergedQuotes)) {
             quotes = mergedQuotes;
             saveData();
-            updateSyncStatus('Synchronization complete', 'success');
+            updateSyncStatus('Quotes synced with server!', 'success'); // Added specific success message
             populateCategories();
             showRandomQuote();
             pendingChanges = false;
