@@ -32,10 +32,10 @@ async function init() {
     exportBtn.addEventListener('click', exportToJsonFile);
     importFile.addEventListener('change', importFromJsonFile);
     categoryFilter.addEventListener('change', filterQuotes);
-    manualSyncBtn.addEventListener('click', syncWithServer);
+    manualSyncBtn.addEventListener('click', syncQuotes); // Changed to use syncQuotes
     
     // Start periodic sync
-    setInterval(syncWithServer, SYNC_INTERVAL);
+    setInterval(syncQuotes, SYNC_INTERVAL); // Changed to use syncQuotes
 }
 
 // Fetch quotes from mock server
@@ -89,44 +89,49 @@ async function postQuotesToServer(quotesToSend) {
     }
 }
 
-// Modified syncWithServer to include POST functionality
-async function syncWithServer() {
+// Main synchronization function
+async function syncQuotes() {
     try {
-        updateSyncStatus('Syncing with server...', 'info');
+        updateSyncStatus('Starting synchronization...', 'info');
         
-        // Get server quotes
+        // Step 1: Get server quotes
+        updateSyncStatus('Fetching server quotes...', 'info');
         const serverQuotes = await fetchQuotesFromServer();
         
-        // POST our local quotes to server (simulated)
+        // Step 2: Send local changes to server
         if (pendingChanges) {
+            updateSyncStatus('Sending local changes...', 'info');
             const localChanges = quotes.filter(q => !q.source || q.source === 'local');
             if (localChanges.length > 0) {
                 await postQuotesToServer(localChanges);
             }
         }
         
-        // Merge with local quotes
+        // Step 3: Merge quotes
+        updateSyncStatus('Merging quotes...', 'info');
         const mergedQuotes = mergeQuotes(quotes, serverQuotes);
         
+        // Step 4: Update if changes detected
         if (JSON.stringify(quotes) !== JSON.stringify(mergedQuotes)) {
             quotes = mergedQuotes;
             saveData();
-            updateSyncStatus('Data synchronized', 'success');
+            updateSyncStatus('Synchronization complete', 'success');
             populateCategories();
             showRandomQuote();
             pendingChanges = false;
-        } else if (!pendingChanges) {
-            updateSyncStatus('Synced with server', 'success');
+        } else {
+            updateSyncStatus('Already up to date', 'success');
         }
         
         lastSyncTime = new Date();
     } catch (error) {
-        updateSyncStatus('Sync failed', 'error');
+        updateSyncStatus('Synchronization failed', 'error');
+        console.error('Sync error:', error);
         throw error;
     }
 }
 
-// [Rest of the functions remain the same as previous implementation:
+// [Rest of the functions remain the same:
 // loadData, saveData, mergeQuotes, updateSyncStatus, populateCategories, 
 // applySavedFilter, filterQuotes, displayQuote, showRandomQuote,
 // createAddQuoteForm, exportToJsonFile, importFromJsonFile]
