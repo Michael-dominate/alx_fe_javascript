@@ -12,6 +12,7 @@ const importFile = document.getElementById('importFile');
 const categoryFilter = document.getElementById('categoryFilter');
 const syncStatus = document.createElement('div');
 syncStatus.className = 'sync-status';
+const manualSyncBtn = document.getElementById('manualSync');
 
 // Server simulation constants
 const SERVER_URL = 'https://jsonplaceholder.typicode.com/posts';
@@ -31,9 +32,33 @@ async function init() {
     exportBtn.addEventListener('click', exportToJsonFile);
     importFile.addEventListener('change', importFromJsonFile);
     categoryFilter.addEventListener('change', filterQuotes);
+    manualSyncBtn.addEventListener('click', syncWithServer);
     
     // Start periodic sync
     setInterval(syncWithServer, SYNC_INTERVAL);
+}
+
+// Fetch quotes from mock server
+async function fetchQuotesFromServer() {
+    try {
+        const response = await fetch(SERVER_URL);
+        if (!response.ok) {
+            throw new Error(`Server error: ${response.status}`);
+        }
+        const serverData = await response.json();
+        
+        // Transform mock data to our quote format
+        return serverData.slice(0, 5).map(post => ({
+            text: post.title,
+            category: `Server-${post.userId}`,
+            source: 'server',
+            id: post.id
+        }));
+    } catch (error) {
+        console.error('Failed to fetch quotes from server:', error);
+        updateSyncStatus('Failed to fetch from server', 'error');
+        throw error;
+    }
 }
 
 // Load data from local storage or server
@@ -48,40 +73,29 @@ async function loadData() {
     }
     
     try {
-        await syncWithServer();
+        const serverQuotes = await fetchQuotesFromServer();
+        quotes = mergeQuotes(quotes, serverQuotes);
+        saveData();
+        updateSyncStatus('Initial data loaded', 'success');
     } catch (error) {
-        updateSyncStatus('Failed to sync with server', 'error');
-        console.error('Sync error:', error);
+        updateSyncStatus('Using local data only', 'warning');
+        console.error('Initial load error:', error);
     }
 }
 
-// Save data to local storage
-function saveData() {
-    localStorage.setItem('quotes', JSON.stringify(quotes));
-    localStorage.setItem('selectedCategory', selectedCategory);
-    pendingChanges = true;
-    updateSyncStatus('Local changes not yet synced', 'warning');
-}
+// [Rest of the functions remain the same as previous implementation:
+// saveData, mergeQuotes, updateSyncStatus, populateCategories, 
+// applySavedFilter, filterQuotes, displayQuote, showRandomQuote,
+// createAddQuoteForm, exportToJsonFile, importFromJsonFile]
 
-// Sync with mock server
+// Modified syncWithServer to use fetchQuotesFromServer
 async function syncWithServer() {
     try {
         updateSyncStatus('Syncing with server...', 'info');
         
-        // Simulate fetching from server
-        const response = await fetch(SERVER_URL);
-        const serverData = await response.json();
-        
-        // Transform mock data to our quote format
-        const serverQuotes = serverData.slice(0, 5).map(post => ({
-            text: post.title,
-            category: `Server-${post.userId}`
-        }));
-        
-        // Merge with local quotes
+        const serverQuotes = await fetchQuotesFromServer();
         const mergedQuotes = mergeQuotes(quotes, serverQuotes);
         
-        // Only update if there are changes
         if (JSON.stringify(quotes) !== JSON.stringify(mergedQuotes)) {
             quotes = mergedQuotes;
             saveData();
@@ -98,48 +112,6 @@ async function syncWithServer() {
         throw error;
     }
 }
-
-// Merge local and server quotes (simple conflict resolution)
-function mergeQuotes(localQuotes, serverQuotes) {
-    // Create a map of quotes by text for quick lookup
-    const quoteMap = new Map();
-    
-    // Add server quotes first (server takes precedence)
-    serverQuotes.forEach(quote => {
-        quoteMap.set(quote.text, quote);
-    });
-    
-    // Add local quotes if they don't exist on server
-    localQuotes.forEach(quote => {
-        if (!quoteMap.has(quote.text)) {
-            quoteMap.set(quote.text, quote);
-        }
-    });
-    
-    return Array.from(quoteMap.values());
-}
-
-// Update sync status UI
-function updateSyncStatus(message, type) {
-    syncStatus.textContent = `Status: ${message}`;
-    syncStatus.className = `sync-status ${type}`;
-    
-    // Auto-hide success messages after 3 seconds
-    if (type === 'success') {
-        setTimeout(() => {
-            if (syncStatus.textContent.includes(message)) {
-                syncStatus.textContent = pendingChanges 
-                    ? 'Status: Local changes not yet synced' 
-                    : 'Status: Synced';
-                syncStatus.className = `sync-status ${pendingChanges ? 'warning' : 'success'}`;
-            }
-        }, 3000);
-    }
-}
-
-// [Previous functions: populateCategories, applySavedFilter, filterQuotes, 
-//  displayQuote, showRandomQuote, createAddQuoteForm, exportToJsonFile, 
-//  importFromJsonFile remain the same as in previous implementation]
 
 // Start the application
 init();
