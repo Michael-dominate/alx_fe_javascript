@@ -61,47 +61,60 @@ async function fetchQuotesFromServer() {
     }
 }
 
-// Load data from local storage or server
-async function loadData() {
-    const localQuotes = localStorage.getItem('quotes');
-    const localCategory = localStorage.getItem('selectedCategory');
-    
-    if (localQuotes) {
-        quotes = JSON.parse(localQuotes);
-        selectedCategory = localCategory || 'all';
-        pendingChanges = false;
-    }
-    
+// Send quotes to server
+async function postQuotesToServer(quotesToSend) {
     try {
-        const serverQuotes = await fetchQuotesFromServer();
-        quotes = mergeQuotes(quotes, serverQuotes);
-        saveData();
-        updateSyncStatus('Initial data loaded', 'success');
+        const response = await fetch(SERVER_URL, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                quotes: quotesToSend,
+                timestamp: new Date().toISOString()
+            })
+        });
+
+        if (!response.ok) {
+            throw new Error(`Server error: ${response.status}`);
+        }
+
+        const responseData = await response.json();
+        console.log('Quotes successfully posted to server:', responseData);
+        return responseData;
     } catch (error) {
-        updateSyncStatus('Using local data only', 'warning');
-        console.error('Initial load error:', error);
+        console.error('Failed to post quotes to server:', error);
+        updateSyncStatus('Failed to post to server', 'error');
+        throw error;
     }
 }
 
-// [Rest of the functions remain the same as previous implementation:
-// saveData, mergeQuotes, updateSyncStatus, populateCategories, 
-// applySavedFilter, filterQuotes, displayQuote, showRandomQuote,
-// createAddQuoteForm, exportToJsonFile, importFromJsonFile]
-
-// Modified syncWithServer to use fetchQuotesFromServer
+// Modified syncWithServer to include POST functionality
 async function syncWithServer() {
     try {
         updateSyncStatus('Syncing with server...', 'info');
         
+        // Get server quotes
         const serverQuotes = await fetchQuotesFromServer();
+        
+        // POST our local quotes to server (simulated)
+        if (pendingChanges) {
+            const localChanges = quotes.filter(q => !q.source || q.source === 'local');
+            if (localChanges.length > 0) {
+                await postQuotesToServer(localChanges);
+            }
+        }
+        
+        // Merge with local quotes
         const mergedQuotes = mergeQuotes(quotes, serverQuotes);
         
         if (JSON.stringify(quotes) !== JSON.stringify(mergedQuotes)) {
             quotes = mergedQuotes;
             saveData();
-            updateSyncStatus('Data updated from server', 'success');
+            updateSyncStatus('Data synchronized', 'success');
             populateCategories();
             showRandomQuote();
+            pendingChanges = false;
         } else if (!pendingChanges) {
             updateSyncStatus('Synced with server', 'success');
         }
@@ -112,6 +125,11 @@ async function syncWithServer() {
         throw error;
     }
 }
+
+// [Rest of the functions remain the same as previous implementation:
+// loadData, saveData, mergeQuotes, updateSyncStatus, populateCategories, 
+// applySavedFilter, filterQuotes, displayQuote, showRandomQuote,
+// createAddQuoteForm, exportToJsonFile, importFromJsonFile]
 
 // Start the application
 init();
