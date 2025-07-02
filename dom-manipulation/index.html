@@ -3,23 +3,27 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Simple Quote Generator</title>
+    <title>Quote Generator</title>
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <h1>Simple Quote Generator</h1>
-    
-    <div id="quoteDisplay">
-        Loading quote...
-    </div>
-    
-    <button id="newQuote">Show New Quote</button>
-    
-    <h3>Add Your Own Quote:</h3>
-    <div>
-        <input id="newQuoteText" type="text" placeholder="Quote text">
-        <input id="newQuoteCategory" type="text" placeholder="Author name">
-        <button onclick="addQuote()">Add Quote</button>
+    <div class="container">
+        <h1>Quote Generator</h1>
+        
+        <div id="quote-container">
+            <div id="quote-display">
+                <p id="quote-text">Click the button to get a random quote!</p>
+                <p id="quote-category"></p>
+            </div>
+            <button id="new-quote-btn">Show New Quote</button>
+        </div>
+        
+        <div class="add-quote-form">
+            <h2>Add Your Own Quote</h2>
+            <input type="text" id="quote-text-input" placeholder="Enter quote text">
+            <input type="text" id="quote-category-input" placeholder="Enter category">
+            <button id="add-quote-btn">Add Quote</button>
+        </div>
     </div>
 
     <script src="script.js"></script>
